@@ -9,6 +9,8 @@ const rs =fs.createReadStream('./popu-pref.csv');//popu-pref.csvファイルか�
 const rl = readline.createInterface({ input: rs, output: {}});
 //readlineオブジェクトのinputとして設定しrlオブジェクトを作成
 
+const prefectureDataMap = new Map();//★key:都道府県　value: 集計データのオブジェクト
+
 rl.on('line',lineString => {
   const columns =lineString.split(',');
   //引数lineStringから与えられた文字列を,で分割して、それをcolumnsという名前の配列にしている
@@ -19,8 +21,24 @@ rl.on('line',lineString => {
   const popu =parseInt(columns[3]);
   //15～19歳の人口を変数に保存　文字列を整数値にするperseInt使用
   if (year === 2010 || year ===2015){
-    console.log(year);
-    console.log(prefecture);
-    console.log(popu);
+    let value =
+     prefectureDataMap.get(prefecture);
+     if(!value){
+       value ={
+         popu10: 0,
+         popu15: 0,
+         change:null
+       };
+     }
+     if(year ===2010){
+       value.popu10 =popu;
+     }
+     if(year ===2015){
+       value.popu15 =popu;
+     }
+     prefectureDataMap.set(prefecture,value);
   }
+});
+rl.on('close',() => {
+  console.log(prefectureDataMap);
 });
